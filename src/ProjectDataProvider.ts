@@ -104,7 +104,8 @@ export class ProjectDataProvider implements TreeDataProvider<TreeItem> {
             item = await VSCodeUI.getQuickPick<ProjectItem>(
                 this.cachedItems,
                 (x: ProjectItem) => x.label,
-                (x: ProjectItem) => x.abosolutePath
+                (x: ProjectItem) => x.abosolutePath,
+                null
             );
         }
         if (item) {
@@ -119,7 +120,8 @@ export class ProjectDataProvider implements TreeDataProvider<TreeItem> {
             item = await VSCodeUI.getQuickPick<ProjectItem>(
                 this.cachedItems,
                 (x: ProjectItem) => x.label,
-                (x: ProjectItem) => x.abosolutePath
+                (x: ProjectItem) => x.abosolutePath,
+                null
             );
         }
         let pomXmlFilePath: string = null;
@@ -159,7 +161,9 @@ export class ProjectDataProvider implements TreeDataProvider<TreeItem> {
             item = await VSCodeUI.getQuickPick<ProjectItem>(
                 this.cachedItems,
                 (x: ProjectItem) => x.label,
-                (x: ProjectItem) => x.abosolutePath);
+                (x: ProjectItem) => x.abosolutePath,
+                null
+            );
         }
         if (!item || !item.abosolutePath) {
             return Promise.resolve();

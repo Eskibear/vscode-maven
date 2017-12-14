@@ -1,6 +1,6 @@
 import * as fs from "fs-extra";
 import * as os from "os";
-import { InputBoxOptions, OpenDialogOptions, QuickPickItem, QuickPickOptions, Terminal, Uri, window, workspace, WorkspaceConfiguration } from "vscode";
+import { InputBoxOptions, OpenDialogOptions, QuickPickItem, QuickPickOptions, Terminal, Uri, window, workspace } from "vscode";
 
 export namespace VSCodeUI {
     const terminals: { [id: string]: Terminal } = {};
@@ -81,7 +81,7 @@ export namespace VSCodeUI {
     ): Promise<T> {
         const items: T[] = await itemsSource;
         const itemWrappersPromise: Promise<IQuickPickItemEx<T>[]> = new Promise<IQuickPickItemEx<T>[]>(
-            (resolve: (value: IQuickPickItemEx<T>[]) => void, reject: (e: Error) => void): void => {
+            (resolve: (value: IQuickPickItemEx<T>[]) => void, _reject: (e: Error) => void): void => {
                 const ret: IQuickPickItemEx<T>[] = items.map((item: T) => Object.assign({}, {
                     description: (detailfunc && descfunc(item)),
                     detail: (detailfunc && detailfunc(item)),

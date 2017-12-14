@@ -24,10 +24,10 @@ export namespace Utils {
                 if (iconPath) {
                     ret.iconPath = iconPath;
                 }
-                return Promise.resolve(ret);
+                return ret;
             }
         }
-        return Promise.resolve(null);
+        return null;
     }
 
     export async function readXmlContent(xml: string, options?: {}): Promise<{}> {
@@ -109,12 +109,12 @@ export namespace Utils {
                         }
                     });
                 });
-                return Promise.resolve(Object.keys(dict).map((k: string) => dict[k]));
+                return Object.keys(dict).map((k: string) => dict[k]);
             }
         } catch (err) {
             // do nothing
         }
-        return Promise.resolve([]);
+        return [];
      }
 
     export function getLocalArchetypeCatalogFilePath(): string {
@@ -132,7 +132,6 @@ export namespace Utils {
         }
         await fs.ensureFile(filepath);
         const file: fs.WriteStream = fs.createWriteStream(filepath);
-        const contentBlocks: string[] = [];
         return new Promise<string>(
             (resolve: (value: string) => void, reject: (e: Error) => void): void => {
                 const request: http.ClientRequest = http.get(url, (response: http.IncomingMessage) => {

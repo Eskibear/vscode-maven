@@ -1,11 +1,12 @@
 
 import * as fs from "fs-extra";
+import * as path from "path";
 import { Uri, window } from "vscode";
 import { Archetype } from "./Archetype";
 import { Utils } from "./Utils";
 import { VSCodeUI } from "./VSCodeUI";
 // tslint:disable-next-line:no-http-string
-const DEFAULT_ARCHETYPE_CATALOG_URL: string = "http://repo.maven.apache.org/maven2/archetype-catalog.xml";
+const REMOTE_ARCHETYPE_CATALOG_URL: string = "http://repo.maven.apache.org/maven2/archetype-catalog.xml";
 
 const MENUITEM_COMMON_ARCHETYPES: string = "Select from common archetypes ...";
 const MENUITEM_NEW_ARCHETYPE: string = "Manually specify archetype ... ";
@@ -37,41 +38,39 @@ export namespace ArchetypeModule {
         } else {
             return Promise.resolve();
         }
-
-        const selectedCatalog: string = await window.showQuickPick(
-            [MENUITEM_COMMON_ARCHETYPES, MENUITEM_NEW_ARCHETYPE],
-            { ignoreFocusOut: true }
-        );
-        switch (selectedCatalog) {
-            case MENUITEM_COMMON_ARCHETYPES:
-                await selectArchetypesSteps(cwd);
-                return;
-            case MENUITEM_NEW_ARCHETYPE:
-                await addArcheTypeSteps(cwd);
-                return;
-            default:
-                return;
-        }
+        await selectArchetypesSteps(cwd);
     }
 
     async function selectArchetypesSteps(cwd: string): Promise<void> {
-        const selectedArchetype: Archetype = await window.showQuickPick(
-            getArchetypeList(),
-            { matchOnDescription: true, placeHolder: "Select archetype with <groupId>:<artifactId> ...", ignoreFocusOut: true }
+        let selectedArchetype: Archetype = await VSCodeUI.getQuickPick<Archetype>(
+            loadArchetypePickItems(true),
+            (item: Archetype) => item.groupId ? `$(package) ${item.groupId} ` : "More ...",
+            (item: Archetype) => item.artifactId ? `$(kebab-vertical) ${item.artifactId}` : "More ... ",
+            (item: Archetype) => item.description,
+            { matchOnDescription: true, placeHolder: "Select archetype with <groupId>:<artifactId> ..." }
         );
-        if (selectedArchetype) {
-            const { artifactId, groupId, versions } = selectedArchetype;
-            const version: string = await window.showQuickPick(
-                Promise.resolve(versions),
-                { placeHolder: "Select version ...", ignoreFocusOut: true }
+        // let selectedArchetype: Archetype = await window.showQuickPick(
+        //     loadArchetypePickItems(true),
+        //     { matchOnDescription: true, placeHolder: "Select archetype with <groupId>:<artifactId> ...", ignoreFocusOut: true }
+        // );
+        if (selectedArchetype === undefined) {
+            return;
+        } else if (!selectedArchetype.artifactId) {
+            selectedArchetype = await window.showQuickPick(
+                loadArchetypePickItems(false),
+                { matchOnDescription: true, placeHolder: "Select archetype with <groupId>:<artifactId> ...", ignoreFocusOut: true }
             );
-            if (version) {
-                const cmd: string = ["mvn archetype:generate",
-                    `-DarchetypeArtifactId="${artifactId}"`,
-                    `-DarchetypeGroupId="${groupId}"`,
-                    `-DarchetypeVersion="${version}"`].join(" ");
-                VSCodeUI.runInTerminal(cmd, { cwd, name: "Maven-Archetype" });
-            }
+        }
+
+        if (selectedArchetype) {
+            const { artifactId, groupId } = selectedArchetype;
+            const cmd: string = [
+                Utils.getMavenExecutable(),
+                "archetype:generate",
+                `-DarchetypeArtifactId="${artifactId}"`,
+                `-DarchetypeGroupId="${groupId}"`
+            ].join(" ");
+            VSCodeUI.runInTerminal(cmd, { cwd, name: "Maven-Archetype" });
         }
     }
 
@@ -137,5 +136,16 @@ export namespace ArchetypeModule {
 
         const lists: Archetype[][] = await Promise.all([Utils.listArchetypeFromXml(nonLocalXml), Utils.listArchetypeFromXml(localXml)]);
         return Promise.resolve([].concat.apply([], lists));
+    }
+
+    async function loadArchetypePickItems(min?: boolean): Promise<Archetype[]> {
+        const contentPath: string = path.join(Utils.getExtensionRootPath(), "resources", min ? "archetypes.min.json" : "archetypes.json");
+        const items: Archetype[] = await fs.readJSON(contentPath);
+        if (min) {
+            const fakeArchetype: Archetype = new Archetype(null, null, null, "View more archetypes in remote catalog.");
+            fakeArchetype.label = "More ... ";
+            items.push(fakeArchetype);
+        }
+        return items;
     }
 }

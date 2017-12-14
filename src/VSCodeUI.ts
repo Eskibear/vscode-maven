@@ -75,21 +75,24 @@ export namespace VSCodeUI {
     }
 
     export async function getQuickPick<T>(
-        items: T[],
+        itemsSource: T[] | Promise<T[]>,
         labelfunc: (item: T) => string, descfunc: (item: T) => string,
         detailfunc: (item: T) => string, options?: QuickPickOptions
     ): Promise<T> {
-        const itemWrappers: IQuickPickItemEx<T>[] = [];
-        items.forEach((item: T) => {
-            const wrapper: IQuickPickItemEx<T> = {
-                description: (detailfunc && descfunc(item)),
-                detail: (detailfunc && detailfunc(item)),
-                label: (labelfunc && labelfunc(item)),
-                value: item
-            };
-            itemWrappers.push(wrapper);
-        });
-        const selected: IQuickPickItemEx<T> = await window.showQuickPick(itemWrappers, Object.assign({ ignoreFocusOut: true }, options));
+        const items: T[] = await itemsSource;
+        const itemWrappersPromise: Promise<IQuickPickItemEx<T>[]> = new Promise<IQuickPickItemEx<T>[]>(
+            (resolve: (value: IQuickPickItemEx<T>[]) => void, reject: (e: Error) => void): void => {
+                const ret: IQuickPickItemEx<T>[] = items.map((item: T) => Object.assign({}, {
+                    description: (detailfunc && descfunc(item)),
+                    detail: (detailfunc && detailfunc(item)),
+                    label: (labelfunc && labelfunc(item)),
+                    value: item
+                }));
+                resolve(ret);
+            }
+        );
+
+        const selected: IQuickPickItemEx<T> = await window.showQuickPick(itemWrappersPromise, Object.assign({ ignoreFocusOut: true }, options));
         return selected && selected.value;
     }
 

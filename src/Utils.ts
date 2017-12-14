@@ -4,7 +4,7 @@ import * as md5 from "md5";
 import * as minimatch from "minimatch";
 import * as os from "os";
 import * as path from "path";
-import { extensions } from 'vscode';
+import { extensions, workspace } from 'vscode';
 import * as xml2js from "xml2js";
 import { Archetype } from "./Archetype";
 import { ProjectItem } from "./model/ProjectItem";
@@ -179,5 +179,9 @@ export namespace Utils {
 
     export function getExtensionRootPath(): string {
         return extensions.getExtension(EXTENSION_ID).extensionPath;
+    }
+
+    export function getMavenExecutable(): string {
+        return workspace.getConfiguration("maven.executable").get<string>("path") || "mvn";
     }
 }

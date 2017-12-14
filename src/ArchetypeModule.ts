@@ -2,7 +2,7 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import { Uri, window } from "vscode";
-import { Archetype } from "./Archetype";
+import { Archetype } from "./model/Archetype";
 import { Utils } from "./Utils";
 import { VSCodeUI } from "./VSCodeUI";
 // tslint:disable-next-line:no-http-string
@@ -41,25 +41,30 @@ export namespace ArchetypeModule {
         await selectArchetypesSteps(cwd);
     }
 
-    async function selectArchetypesSteps(cwd: string): Promise<void> {
-        let selectedArchetype: Archetype = await VSCodeUI.getQuickPick<Archetype>(
-            loadArchetypePickItems(true),
-            (item: Archetype) => item.groupId ? `$(package) ${item.groupId} ` : "More ...",
-            (item: Archetype) => item.artifactId ? `$(kebab-vertical) ${item.artifactId}` : "More ... ",
+    export async function updateArchetypeCatalog(): Promise<void> {
+        const xml: string = await Utils.httpGetContent(REMOTE_ARCHETYPE_CATALOG_URL);
+        const archetypes: Archetype[] = await Utils.listArchetypeFromXml(xml);
+        const targetFilePath: string = path.join(Utils.getExtensionRootPath(), "resources", "archetypes.json");
+        await fs.ensureFile(targetFilePath);
+        await fs.writeJSON(targetFilePath, archetypes);
+    }
+
+    async function showQuickPickForArchetypes(options?: {all: boolean}): Promise<Archetype> {
+        return await VSCodeUI.getQuickPick<Archetype>(
+            loadArchetypePickItems(options),
+            (item: Archetype) => item.artifactId ? `$(package) ${item.artifactId} ` : "More ...",
+            (item: Archetype) => item.groupId ? `${item.groupId}` : "",
             (item: Archetype) => item.description,
             { matchOnDescription: true, placeHolder: "Select archetype with <groupId>:<artifactId> ..." }
         );
-        // let selectedArchetype: Archetype = await window.showQuickPick(
-        //     loadArchetypePickItems(true),
-        //     { matchOnDescription: true, placeHolder: "Select archetype with <groupId>:<artifactId> ...", ignoreFocusOut: true }
-        // );
+    }
+
+    async function selectArchetypesSteps(cwd: string): Promise<void> {
+        let selectedArchetype: Archetype = await showQuickPickForArchetypes();
         if (selectedArchetype === undefined) {
             return;
         } else if (!selectedArchetype.artifactId) {
-            selectedArchetype = await window.showQuickPick(
-                loadArchetypePickItems(false),
-                { matchOnDescription: true, placeHolder: "Select archetype with <groupId>:<artifactId> ...", ignoreFocusOut: true }
-            );
+            selectedArchetype = await showQuickPickForArchetypes({all : true});
         }
 
         if (selectedArchetype) {
@@ -138,14 +143,18 @@ export namespace ArchetypeModule {
         return Promise.resolve([].concat.apply([], lists));
     }
 
-    async function loadArchetypePickItems(min?: boolean): Promise<Archetype[]> {
-        const contentPath: string = path.join(Utils.getExtensionRootPath(), "resources", min ? "archetypes.min.json" : "archetypes.json");
-        const items: Archetype[] = await fs.readJSON(contentPath);
-        if (min) {
-            const fakeArchetype: Archetype = new Archetype(null, null, null, "View more archetypes in remote catalog.");
-            fakeArchetype.label = "More ... ";
-            items.push(fakeArchetype);
+    async function loadArchetypePickItems(options?: {all: boolean}): Promise<Archetype[]> {
+        const contentPath: string = path.join(Utils.getExtensionRootPath(), "resources", "archetypes.json");
+        if (await fs.pathExists(contentPath)) {
+            const allItems: Archetype[] = await fs.readJSON(contentPath);
+            if (options && options.all) {
+                return allItems;
+            } else {
+                const preferredGroupIds: string[] = ["com.microsoft", "org.apache.maven.archetypes"];
+                const items: Archetype[][] = preferredGroupIds.map((gid: string) => allItems.filter((item: Archetype) => item.groupId.startsWith(gid)));
+                return [].concat.apply([new Archetype(null, null, null, "Find more archetypes available in remote catalog.")], items);
+            }
         }
-        return items;
+        return [];
     }
 }

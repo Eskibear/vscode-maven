@@ -6,7 +6,7 @@ import * as os from "os";
 import * as path from "path";
 import { extensions, workspace } from 'vscode';
 import * as xml2js from "xml2js";
-import { Archetype } from "./Archetype";
+import { Archetype } from "./model/Archetype";
 import { ProjectItem } from "./model/ProjectItem";
 import { IArchetype, IArchetypeCatalogRoot, IArchetypes, IPomRoot } from "./model/XmlSchema";
 const EXTENSION_NAME: string = "vscode-maven";

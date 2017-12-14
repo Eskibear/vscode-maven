@@ -1,6 +1,6 @@
 import * as fs from "fs-extra";
 import * as os from "os";
-import { InputBoxOptions, OpenDialogOptions, QuickPickItem, Terminal, Uri, window, workspace, WorkspaceConfiguration, QuickPickOptions } from "vscode";
+import { InputBoxOptions, OpenDialogOptions, QuickPickItem, QuickPickOptions, Terminal, Uri, window, workspace, WorkspaceConfiguration } from "vscode";
 
 export namespace VSCodeUI {
     const terminals: { [id: string]: Terminal } = {};

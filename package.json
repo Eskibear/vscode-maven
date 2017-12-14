@@ -37,6 +37,7 @@
     "onCommand:maven.project.effectivePom",
     "onCommand:maven.project.openPom",
     "onCommand:maven.archetype.generate",
+    "onCommand:maven.archetype.update",
     "onView:mavenProjects"
   ],
   "main": "./out/extension",
@@ -114,6 +115,11 @@
       {
         "command": "maven.archetype.generate",
         "title": "Generate from Maven Archetype",
+        "category": "Maven"
+      },
+      {
+        "command": "maven.archetype.update",
+        "title": "Update Maven Archetype Catalog",
         "category": "Maven"
       }
     ],
@@ -219,7 +225,10 @@
           },
           "maven.projects.excludedFolders": {
             "type": "array",
-            "default": ["**/.*", "**/node_modules"],
+            "default": [
+              "**/.*",
+              "**/node_modules"
+            ],
             "description": "Specifies filepath pattern of folders to exclude while searching for maven projects.",
             "scope": "resource"
           },

@@ -91,9 +91,14 @@ export class ProjectDataProvider implements TreeDataProvider<TreeItem> {
         this._onDidChangeTreeData.fire();
     }
 
-    public async executeGoal(item: ProjectItem, goal?: string): Promise<void> {
+    public async executeGoal(item: ProjectItem, goal: string): Promise<void> {
         if (item) {
-            const cmd: string = `"${Utils.getMavenExecutable()}" ${goal || item.label} -f "${item.abosolutePath}"`;
+            const cmd: string = [
+                Utils.getMavenExecutable(),
+                goal,
+                "-f",
+                `"${item.abosolutePath}"`
+            ].join(" ");
             const name: string = `Maven-${item.artifactId}`;
             VSCodeUI.runInTerminal(cmd, { name });
         }
@@ -112,7 +117,13 @@ export class ProjectDataProvider implements TreeDataProvider<TreeItem> {
         const promise: Promise<string> = new Promise<string>(
             (resolve: (value: string) => void, reject: (e: Error) => void): void => {
                 const filepath: string = Utils.getEffectivePomOutputPath(pomXmlFilePath);
-                const cmd: string = `${Utils.getMavenExecutable()} help:effective-pom -f "${pomXmlFilePath}" -Doutput="${filepath}"`;
+                const cmd: string = [
+                    Utils.getMavenExecutable(),
+                    "help:effective-pom",
+                    "-f",
+                    `"${pomXmlFilePath}"`,
+                    `-Doutput="${filepath}"`
+                ].join(" ");
                 exec(cmd, (error: Error, _stdout: string, _stderr: string): void => {
                     if (error) {
                         reject(error);
@@ -148,7 +159,12 @@ export class ProjectDataProvider implements TreeDataProvider<TreeItem> {
             if (trimedGoals) {
                 await Utils.saveCmdHistory(item.abosolutePath, Utils.withLRUItemAhead(cmdlist, trimedGoals));
                 VSCodeUI.runInTerminal(
-                    `"${Utils.getMavenExecutable()}" ${trimedGoals} -f "${item.abosolutePath}"`,
+                    [
+                        Utils.getMavenExecutable(),
+                        trimedGoals,
+                        "-f",
+                        `"${item.abosolutePath}"`
+                    ].join(" "),
                     { name: `Maven-${item.artifactId}` }
                 );
             }
@@ -158,7 +174,12 @@ export class ProjectDataProvider implements TreeDataProvider<TreeItem> {
         } else if (selectedGoal) {
             await Utils.saveCmdHistory(item.abosolutePath, Utils.withLRUItemAhead(cmdlist, selectedGoal));
             VSCodeUI.runInTerminal(
-                `"${Utils.getMavenExecutable()}" ${selectedGoal} -f "${item.abosolutePath}"`,
+                [
+                    Utils.getMavenExecutable(),
+                    selectedGoal,
+                    "-f",
+                    `"${item.abosolutePath}"`
+                ].join(" "),
                 { name: `Maven-${item.artifactId}` }
             );
         }

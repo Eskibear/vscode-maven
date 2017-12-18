@@ -37,7 +37,7 @@ export class ProjectDataProvider implements TreeDataProvider<TreeItem> {
         } else if (element.contextValue === "WorkspaceItem") {
             const workspaceItem: WorkspaceItem = <WorkspaceItem> element;
             const depth: number = workspace.getConfiguration("maven.projects").get<number>("maxDepthOfPom");
-            const exclusions: string[] = workspace.getConfiguration("maven.projects").get<string[]>("excludedFolders");
+            const exclusions: string[] = workspace.getConfiguration("maven.projects", Uri.file(workspaceItem.abosolutePath)).get<string[]>("excludedFolders");
             const foundPomXmls: string[] = await Utils.findAllInDir(workspaceItem.abosolutePath, "pom.xml", depth, exclusions);
             const promiseList: Promise<ProjectItem>[] = foundPomXmls.map((pomXmlFilePath: string) => Utils.getProject(pomXmlFilePath, workspaceItem.abosolutePath, this.context.asAbsolutePath(path.join("resources", "project.svg"))));
             const items: ProjectItem[] = (await Promise.all(promiseList)).filter((x: ProjectItem) => x);
@@ -110,25 +110,27 @@ export class ProjectDataProvider implements TreeDataProvider<TreeItem> {
             return;
         }
         const promise: Promise<string> = new Promise<string>(
-            (resolve: (value: string) => void, _reject: (e: Error) => void): void => {
+            (resolve: (value: string) => void, reject: (e: Error) => void): void => {
                 const filepath: string = Utils.getEffectivePomOutputPath(pomXmlFilePath);
-                const cmd: string = `"${Utils.getMavenExecutable()}" help:effective-pom -f "${pomXmlFilePath}" -Doutput="${filepath}"`;
-                exec(cmd, (error: Error, _stdout: string, stderr: string): void => {
-                    if (error || stderr) {
-                        return resolve(null);
+                const cmd: string = `${Utils.getMavenExecutable()} help:effective-pom -f "${pomXmlFilePath}" -Doutput="${filepath}"`;
+                exec(cmd, (error: Error, _stdout: string, _stderr: string): void => {
+                    if (error) {
+                        reject(error);
                     }
                     resolve(filepath);
                 });
             }
         );
-        window.setStatusBarMessage("Generating effective pom ... ", promise);
-        const ret: string = await promise;
-        const pomxml: string = await Utils.readFileIfExists(ret);
-        if (pomxml) {
-            const document: TextDocument = await workspace.openTextDocument({ language: "xml", content: pomxml });
-            window.showTextDocument(document);
-        } else {
-            window.showErrorMessage("Error occurred in generating effective pom.");
+        try {
+            window.setStatusBarMessage("Generating effective pom ... ", promise);
+            const ret: string = await promise;
+            const pomxml: string = await Utils.readFileIfExists(ret);
+            if (pomxml) {
+                const document: TextDocument = await workspace.openTextDocument({ language: "xml", content: pomxml });
+                window.showTextDocument(document);
+            }
+        } catch (error) {
+            window.showErrorMessage(`Error occurred in generating effective pom.\n${error}`);
         }
     }
 

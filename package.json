@@ -291,6 +291,12 @@
             "default": "",
             "description": "Specifies absolute path of mvn executable.",
             "scope": "window"
+          },
+          "maven.enableStatistics" : {
+            "type": "boolean",
+            "default": true,
+            "description": "Specifies whether to send anonymous usage data for statistics.",
+            "scope": "window"
           }
         }
       }

@@ -2,8 +2,26 @@ import * as vscode from "vscode";
 import TelemetryReporter from "vscode-extension-telemetry";
 
 export module UsageData {
-    const extensionId: string = "eskibear.vscode-maven";
-    const reporter: TelemetryReporter = new TelemetryReporter("eskibear.vscode-maven", "9.9.9", "key");
+    let reporter: TelemetryReporter;
+    export function initilize(publisher: string, name: string, version: string, aiKey: string): void {
+        if (reporter) {
+            throw new Error("TelemetryReporter already initilized.");
+        }
+        reporter = new TelemetryReporter(`${publisher}.${name}`, version, aiKey);
+        report(EventType.ACTIVATION);
+    }
+
+    export function registerCommand(context: vscode.ExtensionContext, command: string, callback: (...args: {}[]) => any, _thisArg?: any): void {
+        context.subscriptions.push(vscode.commands.registerCommand(command, (param: {}[]) => {
+            report(EventType.COMMAND, {properties: {command}});
+            try {
+                callback(param);
+            } catch (error) {
+                report(EventType.ERROR, {properties: {command, error}});
+                throw error;
+            }
+        }));
+    }
 
     function isEnabled(): boolean {
         return vscode.workspace.getConfiguration("maven").get<boolean>("enableStatistics");
@@ -16,15 +34,15 @@ export module UsageData {
         return trans;
     }
 
-    function report(eventType: EventType, event: ICustomEvent): void {
-        if (isEnabled()) {
-            reporter.sendTelemetryEvent(`${extensionId}/${eventType}`, event.properties, event.measures);
+    export function report(eventType: EventType, event?: ICustomEvent): void {
+        if (reporter && isEnabled()) {
+            reporter.sendTelemetryEvent(`${eventType}`, event && event.properties, event && event.measures);
         }
     }
 
     export function reportTransaction(transaction: Transaction): void {
         const event: ICustomEvent = transaction.getCustomEvent();
-        report(EventType.Transection, event);
+        report(EventType.TRANSECTION, event);
     }
 
     export class Transaction {
@@ -70,9 +88,11 @@ export module UsageData {
         reduceFunc(observes: {}[]): number;
     }
     enum EventType {
-        Error = "Error",
-        Transection = "Transection",
-        Event = "Event"
+        ACTIVATION = "activation",
+        ERROR = "error",
+        TRANSECTION = "transection",
+        EVENT = "event",
+        COMMAND = "command"
     }
 }
 

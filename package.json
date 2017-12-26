@@ -5,6 +5,7 @@
   "version": "0.4.0",
   "icon": "resources/logo.png",
   "publisher": "eskibear",
+  "aiKey": "e4dc3512-4d13-406d-b886-a6c7bfe6a88b",
   "engines": {
     "vscode": "^1.18.0"
   },

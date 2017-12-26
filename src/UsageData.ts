@@ -23,13 +23,16 @@ export module UsageData {
         }));
     }
 
+    export function reportError(error: Error|string): void {
+        report(EventType.ERROR, {properties: {error: error && error.toString()}});
+    }
+
     function isEnabled(): boolean {
         return vscode.workspace.getConfiguration("maven").get<boolean>("enableStatistics");
     }
 
-    export function startTransaction(): Transaction {
-        const trans: Transaction = new Transaction();
-        trans.id = null;
+    export function startTransaction(name: string): Transaction {
+        const trans: Transaction = new Transaction(name);
         trans.startAt = new Date();
         return trans;
     }
@@ -42,11 +45,10 @@ export module UsageData {
 
     export function reportTransaction(transaction: Transaction): void {
         const event: ICustomEvent = transaction.getCustomEvent();
-        report(EventType.TRANSECTION, event);
+        report(EventType.TRANSACTION, event);
     }
 
     export class Transaction {
-        public id: string;
         public name: string;
         public startAt?: Date;
         public stopAt?: Date;
@@ -55,6 +57,10 @@ export module UsageData {
         private customMeasures?: { [key: string]: ICustomMeasure } = {};
         private customProperties?: { [key: string]: {} } = {};
 
+        constructor(name: string) {
+            this.name = name;
+        }
+
         public getCustomEvent(): ICustomEvent {
             const ret: ICustomEvent = {};
             ret.measures = Object.assign(
@@ -62,7 +68,7 @@ export module UsageData {
                 ...Object.keys(this.customMeasures).map((k: string) => ({ [k]: this.customMeasures[k].reduceFunc(this.customMeasures[k].observes) })),
                 { duration: this.stopAt.getTime() - this.startAt.getTime() }
             );
-            ret.properties = Object.assign({}, this.customProperties, { startAt: this.startAt, stopAt: this.stopAt, success: this.success });
+            ret.properties = Object.assign({}, this.customProperties, { name: this.name, startAt: this.startAt, stopAt: this.stopAt, success: this.success });
             return ret;
         }
 
@@ -78,7 +84,8 @@ export module UsageData {
             }
         }
 
-        public complete(): void {
+        public complete(success: boolean): void {
+            this.success = success;
             this.stopAt = new Date();
             reportTransaction(this);
         }
@@ -90,7 +97,7 @@ export module UsageData {
     enum EventType {
         ACTIVATION = "activation",
         ERROR = "error",
-        TRANSECTION = "transection",
+        TRANSACTION = "transaction",
         EVENT = "event",
         COMMAND = "command"
     }

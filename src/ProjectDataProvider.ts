@@ -1,14 +1,14 @@
 
 import { exec } from "child_process";
 import * as path from "path";
-import { Event, EventEmitter, ExtensionContext, TextDocument, TreeDataProvider, TreeItem, Uri, window, workspace, WorkspaceFolder, ProgressLocation, Progress } from "vscode";
+import { Event, EventEmitter, ExtensionContext, Progress, ProgressLocation, TextDocument, TreeDataProvider, TreeItem, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import { FolderItem } from "./model/FolderItem";
 import { ProjectItem } from "./model/ProjectItem";
 import { WorkspaceItem } from "./model/WorkspaceItem";
 import { IPomModule, IPomModules, IPomRoot } from "./model/XmlSchema";
+import { UsageData } from "./UsageData";
 import { Utils } from "./Utils";
 import { VSCodeUI } from "./VSCodeUI";
-import { UsageData } from "./UsageData";
 
 const ENTRY_NEW_GOALS: string = "New ...";
 const ENTRY_OPEN_HIST: string = "Edit ...";

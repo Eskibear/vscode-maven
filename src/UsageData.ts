@@ -50,15 +50,16 @@ export module UsageData {
 
     export class Transaction {
         public name: string;
-        public startAt?: Date;
-        public stopAt?: Date;
-        public success?: boolean;
+        public startAt: Date;
+        public stopAt: Date;
+        public success: boolean;
 
         private customMeasures?: { [key: string]: ICustomMeasure } = {};
         private customProperties?: { [key: string]: {} } = {};
 
         constructor(name: string) {
             this.name = name;
+            this.success = false;
         }
 
         public getCustomEvent(): ICustomEvent {

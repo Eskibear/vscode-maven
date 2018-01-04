@@ -8,8 +8,8 @@ import { UsageData } from "./UsageData";
 import { Utils } from "./Utils";
 import { VSCodeUI } from "./VSCodeUI";
 
-export function activate(context: vscode.ExtensionContext): void {
-    Utils.loadPackageInfo(context);
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
+    await Utils.loadPackageInfo(context);
     // Usage data statistics.
     if (Utils.getAiKey()) {
         UsageData.initilize(Utils.getExtensionPublisher(), Utils.getExtensionName(), Utils.getExtensionVersion(), Utils.getAiKey());

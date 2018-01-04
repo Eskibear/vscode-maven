@@ -10,14 +10,14 @@ import { Archetype } from "./model/Archetype";
 import { ProjectItem } from "./model/ProjectItem";
 import { IArchetype, IArchetypeCatalogRoot, IArchetypes, IPomRoot } from "./model/XmlSchema";
 
-let EXTENSION_PUBLISHER: string;
-let EXTENSION_NAME: string;
-let EXTENSION_VERSION: string;
-let EXTENSION_AI_KEY: string;
-
 export namespace Utils {
-    export function loadPackageInfo(context: ExtensionContext): void {
-        const { publisher, name, version, aiKey } = fse.readJSONSync(context.asAbsolutePath("./package.json"));
+    let EXTENSION_PUBLISHER: string;
+    let EXTENSION_NAME: string;
+    let EXTENSION_VERSION: string;
+    let EXTENSION_AI_KEY: string;
+
+    export async function loadPackageInfo(context: ExtensionContext): Promise<void> {
+        const { publisher, name, version, aiKey } = await fse.readJSON(context.asAbsolutePath("./package.json"));
         EXTENSION_AI_KEY = aiKey;
         EXTENSION_PUBLISHER = publisher;
         EXTENSION_NAME = name;
@@ -48,7 +48,7 @@ export namespace Utils {
         return path.join(os.tmpdir(), getExtensionId(), ...args);
     }
 
-    export function getExtensionRootPath(...args: string[]): string {
+    export function getPathToExtensionRoot(...args: string[]): string {
         return path.join(extensions.getExtension(getExtensionId()).extensionPath, ...args);
     }
 
@@ -154,7 +154,7 @@ export namespace Utils {
     }
 
     export function getProvidedArchetypeCatalogFilePath(): string {
-        return path.join(Utils.getExtensionRootPath(), "resources", "archetype-catalog.xml");
+        return path.join(Utils.getPathToExtensionRoot(), "resources", "archetype-catalog.xml");
     }
 
     export async function httpGetContent(url: string): Promise<string> {

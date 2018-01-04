@@ -18,7 +18,7 @@ export class FolderItem extends TreeItem {
         this.parentAbsolutePath = parentAbsolutePath;
         this.contextValue = contextValue;
         this.params = params || {};
-        this.iconPath = { light: Utils.getExtensionRootPath("resources", "light", "folder.svg"), dark: Utils.getExtensionRootPath("resources", "dark", "folder.svg") };
+        this.iconPath = { light: Utils.getPathToExtensionRoot("resources", "light", "folder.svg"), dark: Utils.getPathToExtensionRoot("resources", "dark", "folder.svg") };
     }
 
 }

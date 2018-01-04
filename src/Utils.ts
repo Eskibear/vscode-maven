@@ -45,7 +45,7 @@ export namespace Utils {
     }
 
     export function getTempFolderPath(...args: string[]): string {
-        return path.join(os.tmpdir(), getExtensionId(), ...args);
+        return path.join(os.tmpdir(), EXTENSION_NAME, ...args);
     }
 
     export function getPathToExtensionRoot(...args: string[]): string {

@@ -114,7 +114,7 @@ export class ProjectDataProvider implements TreeDataProvider<TreeItem> {
             return;
         }
         const ret: string = await window.withProgress({ location: ProgressLocation.Window }, (p: Progress<{ message?: string }>) => new Promise<string>(
-            (resolve: (value: string) => void, _reject: (e: Error) => void): void => {
+            (resolve: (value: string) => void, reject: (e: Error) => void): void => {
                 p.report({ message: "Generating effective pom ... " });
                 const filepath: string = Utils.getEffectivePomOutputPath(pomXmlFilePath);
                 const cmd: string = [
@@ -126,7 +126,7 @@ export class ProjectDataProvider implements TreeDataProvider<TreeItem> {
                 ].join(" ");
                 exec(cmd, (error: Error, _stdout: string, _stderr: string): void => {
                     if (error) {
-                        _reject(error);
+                        reject(error);
                     } else {
                         resolve(filepath);
                     }

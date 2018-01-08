@@ -50,7 +50,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     TelemetryWrapper.registerCommand(context, "maven.archetype.update", async (_t: Transaction) => {
         await vscode.window.withProgress({ location: vscode.ProgressLocation.Window }, async (p: Progress<{}>) => {
             p.report({ message: "updating archetype catalog ..." });
-            ArchetypeModule.updateArchetypeCatalog();
+            await ArchetypeModule.updateArchetypeCatalog();
             p.report({ message: "finished." });
         });
     });

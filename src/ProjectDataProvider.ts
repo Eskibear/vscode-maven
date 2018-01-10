@@ -1,6 +1,5 @@
 
 import { exec } from "child_process";
-import * as os from "os";
 import * as path from "path";
 import { Event, EventEmitter, ExtensionContext, Progress, ProgressLocation, TextDocument, TreeDataProvider, TreeItem, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import { FolderItem } from "./model/FolderItem";

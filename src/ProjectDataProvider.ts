@@ -1,5 +1,6 @@
 
 import { exec } from "child_process";
+import * as os from "os";
 import * as path from "path";
 import { Event, EventEmitter, ExtensionContext, Progress, ProgressLocation, TextDocument, TreeDataProvider, TreeItem, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import { FolderItem } from "./model/FolderItem";
@@ -124,7 +125,8 @@ export class ProjectDataProvider implements TreeDataProvider<TreeItem> {
                     `"${pomXmlFilePath}"`,
                     `-Doutput="${filepath}"`
                 ].join(" ");
-                exec(cmd, (error: Error, _stdout: string, _stderr: string): void => {
+                const rootfolder: WorkspaceFolder = workspace.getWorkspaceFolder(Uri.file(pomXmlFilePath));
+                exec(cmd, { cwd: rootfolder ? rootfolder.uri.fsPath : path.dirname(pomXmlFilePath) }, (error: Error, _stdout: string, _stderr: string): void => {
                     if (error) {
                         window.showErrorMessage(`Error occurred in generating effective pom.\n${error}`);
                         reject(error);

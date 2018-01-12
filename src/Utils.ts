@@ -10,7 +10,7 @@ import { Archetype } from "./model/Archetype";
 import { ProjectItem } from "./model/ProjectItem";
 import { IArchetype, IArchetypeCatalogRoot, IArchetypes, IPomRoot } from "./model/XmlSchema";
 const EXTENSION_NAME: string = "vscode-maven";
-const EXTENSION_ID: string = "eskibear.vscode-maven";
+const EXTENSION_ID: string = "vscjava.vscode-maven";
 
 export namespace Utils {
     export async function getProject(absolutePath: string, workspacePath: string, iconPath?: string): Promise<ProjectItem> {

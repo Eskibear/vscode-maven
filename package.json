@@ -2,7 +2,7 @@
   "name": "vscode-maven",
   "displayName": "Maven Project Explorer",
   "description": "Manage maven projects, execute goals, generate project from archetype, improve user experience for Java developers.",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "icon": "resources/logo.png",
   "publisher": "vscjava",
   "aiKey": "e4dc3512-4d13-406d-b886-a6c7bfe6a88b",

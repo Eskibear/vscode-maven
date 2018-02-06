@@ -2,6 +2,12 @@
 
 [![Marketplace Version](https://vsmarketplacebadge.apphb.com/version-short/vscjava.vscode-maven.svg)](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven) [![Installs](https://vsmarketplacebadge.apphb.com/installs-short/vscjava.vscode-maven.svg)](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven) [![Rating](https://vsmarketplacebadge.apphb.com/rating-short/vscjava.vscode-maven.svg)](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven) [![Build Status](https://travis-ci.org/Eskibear/vscode-maven.svg)](https://travis-ci.org/Eskibear/vscode-maven)
 
+## :warning: This extension has been transferred to Microsoft. 
+
+For latest version, please fetch from marketplace. https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven  
+
+For `version >= 0.5.0`, please visit https://github.com/Microsoft/vscode-maven
+
 ## Features
 
 Maven extension for VS Code. It now reads `pom.xml` in root folder, and provide project structures in sidebar, improving user experience for Java developers who use Maven.
